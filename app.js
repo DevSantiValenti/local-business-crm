@@ -860,7 +860,7 @@ function exportData(type) {
       Nombre: lead.name,
       Direccion: lead.address,
       Telefono: lead.phone,
-      Sitio web: lead.website,
+      "Sitio web": lead.website,
       Facebook: lead.facebook,
       Instagram: lead.instagram,
       Twitter: lead.twitter,
@@ -1051,6 +1051,7 @@ function escapeAttr(value) {
 }
 
 init();
+
 
 
 
