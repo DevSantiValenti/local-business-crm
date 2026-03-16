@@ -199,7 +199,6 @@ function renderSections() {
   sectionsRoot.settings.innerHTML = renderSettingsSection(revenueReport);
 
   if (state.activeSection === 'statistics') chartsManager.render(state.data);
-  bindVirtualList();
 }
 function renderDashboardSection(leadSummary, revenueReport) {
   return `
@@ -849,16 +848,23 @@ function submitClientForm(formData) {
   const clientId = String(payload.id || "");
   const nextClient = buildClient({
     ...payload,
-    id: clientId,
+    leadId: payload.leadId || "",
     monthlyPrice: Number(payload.monthlyPrice) || 0,
     serviceType: payload.serviceType || "Landing"
   });
-  nextClient.id = clientId;
-  state.data.clients = state.data.clients.map((client) => client.id === clientId ? nextClient : client);
+
+  if (clientId && state.data.clients.some((client) => client.id === clientId)) {
+    nextClient.id = clientId;
+    state.data.clients = state.data.clients.map((client) => client.id === clientId ? nextClient : client);
+    toast("Cliente actualizado.");
+  } else {
+    state.data.clients.unshift(nextClient);
+    toast("Cliente creado.");
+  }
+
   saveData();
   closeModal();
   renderApp();
-  toast("Cliente actualizado.");
 }
 
 function deleteCategory(categoryId) {
@@ -1112,6 +1118,9 @@ function escapeAttr(value) {
 }
 
 init();
+
+
+
 
 
 
