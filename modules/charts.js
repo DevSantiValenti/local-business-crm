@@ -21,7 +21,7 @@ export function createChartsManager() {
       data: {
         labels: LEAD_STATUSES,
         datasets: [{
-          label: "Leads",
+          label: "Prospectos",
           data: LEAD_STATUSES.map((status) => data.leads.filter((lead) => lead.status === status).length),
           backgroundColor: ["#CBD5E1", "#60A5FA", "#F87171", "#FBBF24", "#A78BFA", "#4ADE80"],
           borderRadius: 12
@@ -43,7 +43,7 @@ export function createChartsManager() {
       data: {
         labels: revenueSeries.map((item) => item.label),
         datasets: [{
-          label: "MRR Growth",
+          label: "Evolucion MRR",
           data: revenueSeries.map((item) => item.total),
           borderColor: "#6366F1",
           backgroundColor: "rgba(99, 102, 241, 0.15)",
@@ -56,7 +56,7 @@ export function createChartsManager() {
 
     const categoryMap = new Map(data.categories.map((category) => [category.id, category.name]));
     const counts = enrichedClients.reduce((accumulator, client) => {
-      const key = categoryMap.get(client.categoryId) || "Uncategorized";
+      const key = categoryMap.get(client.categoryId) || "Sin categoria";
       accumulator[key] = (accumulator[key] || 0) + 1;
       return accumulator;
     }, {});
@@ -107,3 +107,4 @@ function chartOptions(showLegend) {
     }
   };
 }
+

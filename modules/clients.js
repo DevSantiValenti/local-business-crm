@@ -9,7 +9,7 @@ export function buildClient(payload) {
     monthlyPrice: Number(payload.monthlyPrice) || 0,
     startDate: payload.startDate || new Date().toISOString(),
     nextBillingDate: payload.nextBillingDate || new Date().toISOString(),
-    paymentStatus: payload.paymentStatus || "Pending",
+    paymentStatus: payload.paymentStatus || "Pendiente",
     categoryId: payload.categoryId || "",
     notes: String(payload.notes || "").trim()
   };
@@ -47,3 +47,4 @@ function getMonthsActive(startDate) {
   if (months < 1) months = 1;
   return months;
 }
+
