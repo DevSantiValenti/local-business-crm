@@ -55,11 +55,65 @@ const state = {
 };
 
 function loadInitialData() {
-  const saved = storage.load();
-  if (saved.categories.length || saved.leads.length || saved.clients.length) return saved;
+  const saved = normalizeData(storage.load());
+  if (saved.categories.length || saved.leads.length || saved.clients.length) {
+    storage.save(saved);
+    return saved;
+  }
   const seed = createSeedData();
   storage.save(seed);
   return seed;
+}
+
+function normalizeData(data) {
+  return {
+    categories: Array.isArray(data.categories) ? data.categories : [],
+    leads: Array.isArray(data.leads) ? data.leads.map(normalizeLeadRecord) : [],
+    clients: Array.isArray(data.clients) ? data.clients.map(normalizeClientRecord) : []
+  };
+}
+
+function normalizeLeadRecord(lead) {
+  const statusMap = {
+    "Not contacted": "Sin contactar",
+    Contacted: "Contactado",
+    Rejected: "Rechazado",
+    Interested: "Interesado",
+    Negotiating: "Negociando",
+    Client: "Cliente"
+  };
+  const nextStatus = statusMap[lead?.status] || lead?.status || "Sin contactar";
+  return {
+    ...lead,
+    status: LEAD_STATUSES.includes(nextStatus) ? nextStatus : "Sin contactar",
+    notes: String(lead?.notes || ""),
+    name: String(lead?.name || ""),
+    address: String(lead?.address || ""),
+    phone: String(lead?.phone || ""),
+    website: String(lead?.website || ""),
+    facebook: String(lead?.facebook || ""),
+    instagram: String(lead?.instagram || ""),
+    twitter: String(lead?.twitter || ""),
+    rating: Number(lead?.rating) || 0,
+    reviews: Number(lead?.reviews) || 0
+  };
+}
+
+function normalizeClientRecord(client) {
+  const serviceTypeMap = { Both: "Ambos" };
+  const paymentStatusMap = { Pending: "Pendiente", Paid: "Pagado", Overdue: "Vencido" };
+  return {
+    ...client,
+    businessName: String(client?.businessName || ""),
+    serviceType: serviceTypeMap[client?.serviceType] || client?.serviceType || "Landing",
+    paymentStatus: paymentStatusMap[client?.paymentStatus] || client?.paymentStatus || "Pendiente",
+    notes: String(client?.notes || ""),
+    monthlyPrice: Number(client?.monthlyPrice) || 0
+  };
+}
+
+function getStatusMeta(status) {
+  return STATUS_META[status] || STATUS_META["Sin contactar"];
 }
 
 function saveData() {
@@ -406,8 +460,8 @@ function renderKanbanView(leads) {
       ${LEAD_STATUSES.map((status) => `
         <div class="kanban-column surface-card p-4">
           <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full ${STATUS_META[status].dot}"></span><h4 class="text-sm font-semibold text-slate-900 dark:text-white">${status}</h4></div>
-            <span class="badge ${STATUS_META[status].badge}">${grouped[status].length}</span>
+            <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full ${getStatusMeta(status).dot}"></span><h4 class="text-sm font-semibold text-slate-900 dark:text-white">${status}</h4></div>
+            <span class="badge ${getStatusMeta(status).badge}">${grouped[status].length}</span>
           </div>
           <div class="mt-4 space-y-3">
             ${grouped[status].map((lead) => renderKanbanCard(lead)).join("") || `<div class="rounded-3xl border border-dashed border-slate-200 p-4 text-sm text-slate-400 dark:border-slate-700">Sin leads</div>`}
@@ -426,7 +480,7 @@ function renderKanbanCard(lead) {
           <button class="text-left font-semibold text-slate-900 dark:text-white" data-open-lead="${lead.id}">${escapeHtml(lead.name)}</button>
           <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${escapeHtml(getCategoryName(lead.categoryId))}</p>
         </div>
-        <span class="badge ${STATUS_META[lead.status].badge}">${(lead.rating || 0).toFixed(1)}</span>
+        <span class="badge ${getStatusMeta(lead.status).badge}">${(lead.rating || 0).toFixed(1)}</span>
       </div>
       <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 line-clamp-2">${escapeHtml(lead.address || "Sin direccion")}</p>
       <div class="mt-4">${statusSelect(lead.id, lead.status, true)}</div>
@@ -466,7 +520,7 @@ function recentLeadCard(lead) {
           <p class="font-semibold text-slate-900 dark:text-white">${escapeHtml(lead.name)}</p>
           <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${escapeHtml(getCategoryName(lead.categoryId))}</p>
         </div>
-        <span class="badge ${STATUS_META[lead.status].badge}">${lead.status}</span>
+        <span class="badge ${getStatusMeta(lead.status).badge}">${lead.status}</span>
       </div>
     </button>
   `;
@@ -484,7 +538,7 @@ function progressRow(label, value, total, barClass) {
 
 function statusSelect(leadId, currentStatus, compact = false) {
   return `
-    <select class="w-full rounded-2xl border px-3 py-${compact ? "2" : "3"} text-sm font-semibold outline-none transition ${STATUS_META[currentStatus].select}" data-status-select="${leadId}">
+    <select class="w-full rounded-2xl border px-3 py-${compact ? "2" : "3"} text-sm font-semibold outline-none transition ${getStatusMeta(currentStatus).select}" data-status-select="${leadId}">
       ${LEAD_STATUSES.map((status) => `<option value="${status}" ${status === currentStatus ? "selected" : ""}>${status}</option>`).join("")}
     </select>
   `;
@@ -1051,6 +1105,8 @@ function escapeAttr(value) {
 }
 
 init();
+
+
 
 
 
