@@ -562,6 +562,21 @@ function handleDocumentClick(event) {
   if (event.target.closest("[data-action='new-category']")) return openCategoryModal();
   if (event.target.closest("[data-action='new-lead']")) return openLeadModal();
   if (event.target.closest("[data-action='confirm-import']")) return confirmImport();
+  if (event.target.closest("[data-save-category]")) {
+    const form = document.getElementById("category-form");
+    if (form) submitCategoryForm(new FormData(form));
+    return;
+  }
+  if (event.target.closest("[data-save-lead]")) {
+    const form = document.getElementById("lead-form");
+    if (form) submitLeadForm(new FormData(form));
+    return;
+  }
+  if (event.target.closest("[data-save-client]")) {
+    const form = document.getElementById("client-form");
+    if (form) submitClientForm(new FormData(form));
+    return;
+  }
 
   const whatsappButton = event.target.closest("[data-whatsapp]");
   if (whatsappButton) {
@@ -656,7 +671,7 @@ async function handleDocumentChange(event) {
   }
 }
 
-function handleDocumentSubmit(event) {
+function handleCategoryFormSubmit(event) {`r`n  event.preventDefault();`r`n  submitCategoryForm(new FormData(event.currentTarget));`r`n}`r`n`r`nfunction handleLeadFormSubmit(event) {`r`n  event.preventDefault();`r`n  submitLeadForm(new FormData(event.currentTarget));`r`n}`r`n`r`nfunction handleClientFormSubmit(event) {`r`n  event.preventDefault();`r`n  submitClientForm(new FormData(event.currentTarget));`r`n}`r`n`r`nfunction handleDocumentSubmit(event) {
   if (event.target.id === "category-form") {
     event.preventDefault();
     submitCategoryForm(new FormData(event.target));
@@ -713,7 +728,7 @@ function openCategoryModal(category = null) {
             <label class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Nombre</label>
             <input name="name" required value="${escapeAttr(category?.name || "")}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand dark:border-slate-700 dark:bg-slate-900 dark:text-white">
           </div>
-          <button class="w-full rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-soft">Guardar categoria</button>
+          <button type="button" data-save-category class="w-full rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-soft">Guardar categoria</button>
         </form>
       </div>
     </div>
@@ -753,7 +768,7 @@ function openLeadModal(lead = null) {
             <textarea name="notes" rows="5" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand dark:border-slate-700 dark:bg-slate-900 dark:text-white">${escapeHtml(lead?.notes || "")}</textarea>
           </div>
           <div class="md:col-span-2 flex justify-end">
-            <button class="rounded-2xl bg-brand px-5 py-3 text-sm font-semibold text-white shadow-soft">Guardar lead</button>
+            <button type="button" data-save-lead class="rounded-2xl bg-brand px-5 py-3 text-sm font-semibold text-white shadow-soft">Guardar lead</button>
           </div>
         </form>
       </div>
@@ -793,7 +808,7 @@ function openClientModal(client) {
             <textarea name="notes" rows="4" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand dark:border-slate-700 dark:bg-slate-900 dark:text-white">${escapeHtml(client.notes || "")}</textarea>
           </div>
           <div class="md:col-span-2 flex justify-end">
-            <button class="rounded-2xl bg-brand px-5 py-3 text-sm font-semibold text-white shadow-soft">Guardar cliente</button>
+            <button type="button" data-save-client class="rounded-2xl bg-brand px-5 py-3 text-sm font-semibold text-white shadow-soft">Guardar cliente</button>
           </div>
         </form>
       </div>
@@ -1118,6 +1133,8 @@ function escapeAttr(value) {
 }
 
 init();
+
+
 
 
 
