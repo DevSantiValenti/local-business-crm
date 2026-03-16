@@ -425,7 +425,7 @@ function renderLeadsListView(leads) {
 function renderLeadRow(lead) {
   const categoryName = getCategoryName(lead.categoryId);
   return `
-    <div class="lead-row" data-open-lead="${lead.id}">
+    <div class="lead-row">
       <div>
         <div class="flex items-center gap-3">
           <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand/20 to-cyan-400/20 text-sm font-bold text-brand">${initials(lead.name)}</div>
@@ -439,7 +439,7 @@ function renderLeadRow(lead) {
       <div class="text-sm text-slate-600 dark:text-slate-300">${lead.website ? anchor(lead.website, "Abrir web") : "Sin web"}</div>
       <div>${statusSelect(lead.id, lead.status)}</div>
       <div class="text-sm text-slate-500 dark:text-slate-400">${escapeHtml(categoryName)}</div>
-      <button class="crm-pill px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300" data-open-lead="${lead.id}">Ver</button>
+      <div class="flex items-center gap-2"><button class="crm-pill px-3 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-300" data-whatsapp="${lead.id}">WhatsApp</button><button class="crm-pill px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300" data-open-lead="${lead.id}">Ver</button></div>
     </div>
   `;
 }
@@ -563,6 +563,12 @@ function handleDocumentClick(event) {
   if (event.target.closest("[data-action='new-category']")) return openCategoryModal();
   if (event.target.closest("[data-action='new-lead']")) return openLeadModal();
   if (event.target.closest("[data-action='confirm-import']")) return confirmImport();
+
+  const whatsappButton = event.target.closest("[data-whatsapp]");
+  if (whatsappButton) {
+    openWhatsApp(findLead(whatsappButton.dataset.whatsapp));
+    return;
+  }
 
   const openLeadButton = event.target.closest("[data-open-lead]");
   if (openLeadButton) {
@@ -726,7 +732,7 @@ function openLeadModal(lead = null) {
             ${lead ? `<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Creado ${formatDate(lead.dateAdded)}</p>` : ""}
           </div>
           <div class="flex flex-wrap gap-2">
-            ${lead ? quickLeadActions(lead) : ""}
+            ${lead ? quickLeadActions(lead) + whatsappAction(lead) : ""}
             <button data-modal-close class="crm-pill text-sm font-semibold text-slate-500 dark:text-slate-300">Cerrar</button>
           </div>
         </div>
@@ -997,6 +1003,11 @@ function formSelect(label, name, options, current, required = false) {
   `;
 }
 
+function whatsappAction(lead) {
+  if (!lead?.phone) return "";
+  return `<button class="crm-pill text-sm font-semibold text-emerald-600 dark:text-emerald-300" data-whatsapp="${lead.id}">Enviar WhatsApp</button>`;
+}
+
 function quickLeadActions(lead) {
   return `
     <button class="crm-pill text-sm font-semibold text-slate-600 dark:text-slate-300" data-quick-status="${lead.id}:Contactado">Marcar contactado</button>
@@ -1050,6 +1061,20 @@ function emptyState(text) {
   return `<div class="rounded-[1.8rem] border border-dashed border-slate-200 bg-white/70 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-400">${text}</div>`;
 }
 
+function openWhatsApp(lead) {
+  if (!lead?.phone) {
+    toast("Este lead no tiene telefono cargado.", true);
+    return;
+  }
+  const digits = String(lead.phone).replace(/[^\d]/g, "");
+  if (!digits) {
+    toast("No pudimos interpretar el telefono para WhatsApp.", true);
+    return;
+  }
+  const message = encodeURIComponent(`Hola ${lead.name || ""}, te contacto por una propuesta para mejorar tu presencia digital con landing page y Google Maps.`.trim());
+  window.open(`https://wa.me/${digits}?text=${message}`, "_blank", "noopener,noreferrer");
+}
+
 function anchor(url, label) {
   return `<a href="${escapeAttr(url)}" target="_blank" rel="noreferrer" class="font-semibold text-brand hover:underline">${label}</a>`;
 }
@@ -1065,7 +1090,7 @@ function isoDate(value) {
 }
 
 function money(value) {
-  return `U$D ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(Number(value || 0))}`;
+  return `$ ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(Number(value || 0))}`;
 }
 
 function cryptoId(prefix) {
@@ -1087,6 +1112,9 @@ function escapeAttr(value) {
 }
 
 init();
+
+
+
 
 
 
