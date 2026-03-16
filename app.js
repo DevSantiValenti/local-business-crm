@@ -671,7 +671,22 @@ async function handleDocumentChange(event) {
   }
 }
 
-function handleCategoryFormSubmit(event) {`r`n  event.preventDefault();`r`n  submitCategoryForm(new FormData(event.currentTarget));`r`n}`r`n`r`nfunction handleLeadFormSubmit(event) {`r`n  event.preventDefault();`r`n  submitLeadForm(new FormData(event.currentTarget));`r`n}`r`n`r`nfunction handleClientFormSubmit(event) {`r`n  event.preventDefault();`r`n  submitClientForm(new FormData(event.currentTarget));`r`n}`r`n`r`nfunction handleDocumentSubmit(event) {
+function handleCategoryFormSubmit(event) {
+  event.preventDefault();
+  submitCategoryForm(new FormData(event.currentTarget));
+}
+
+function handleLeadFormSubmit(event) {
+  event.preventDefault();
+  submitLeadForm(new FormData(event.currentTarget));
+}
+
+function handleClientFormSubmit(event) {
+  event.preventDefault();
+  submitClientForm(new FormData(event.currentTarget));
+}
+
+function handleDocumentSubmit(event) {
   if (event.target.id === "category-form") {
     event.preventDefault();
     submitCategoryForm(new FormData(event.target));
@@ -1133,6 +1148,7 @@ function escapeAttr(value) {
 }
 
 init();
+
 
 
 
