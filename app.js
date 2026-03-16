@@ -409,23 +409,14 @@ function renderCategoryCard(category) {
 
 function renderLeadsListView(leads) {
   if (!leads.length) return emptyState("No hay leads que coincidan con los filtros.");
-  const totalHeight = leads.length * LEADS_ROW_HEIGHT;
-  const visibleCount = Math.ceil(640 / LEADS_ROW_HEIGHT) + LEADS_BUFFER * 2;
-  const startIndex = Math.max(0, Math.floor(state.virtualScrollTop / LEADS_ROW_HEIGHT) - LEADS_BUFFER);
-  const endIndex = Math.min(leads.length, startIndex + visibleCount);
-  const visible = leads.slice(startIndex, endIndex);
 
   return `
     <div class="surface-card overflow-hidden">
       <div class="hidden border-b border-slate-200 px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 dark:border-slate-800 lg:grid lg:grid-cols-[minmax(280px,2fr)_minmax(180px,1fr)_minmax(180px,1.2fr)_minmax(160px,1fr)_minmax(140px,0.85fr)_50px] lg:gap-4">
         <span>Negocio</span><span>Telefono</span><span>Web</span><span>Estado</span><span>Categoria</span><span></span>
       </div>
-      <div class="virtual-list" id="lead-virtual-list">
-        <div class="virtual-spacer" style="height:${totalHeight}px;">
-          <div style="transform: translateY(${startIndex * LEADS_ROW_HEIGHT}px)">
-            ${visible.map((lead) => renderLeadRow(lead)).join("")}
-          </div>
-        </div>
+      <div class="virtual-list">
+        ${leads.map((lead) => renderLeadRow(lead)).join("")}
       </div>
     </div>
   `;
@@ -1026,16 +1017,7 @@ document.addEventListener("click", (event) => {
 
 
 
-function bindVirtualList() {
-  const list = document.getElementById("lead-virtual-list");
-  if (!list) return;
-  list.scrollTop = state.virtualScrollTop;
-  list.onscroll = () => {
-    state.virtualScrollTop = list.scrollTop;
-    sectionsRoot.leads.innerHTML = renderLeadsSection();
-    bindVirtualList();
-  };
-}
+
 function closeModal() {
   modalRoot.innerHTML = "";
 }
@@ -1083,7 +1065,7 @@ function isoDate(value) {
 }
 
 function money(value) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value || 0));
+  return `U$D ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(Number(value || 0))}`;
 }
 
 function cryptoId(prefix) {
@@ -1105,6 +1087,10 @@ function escapeAttr(value) {
 }
 
 init();
+
+
+
+
 
 
 

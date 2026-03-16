@@ -108,7 +108,7 @@ function metricCard(label, value, helper, gradient) {
 }
 
 function money(value) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value || 0));
+  return `U$D ${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(Number(value || 0))}`;
 }
 
 function escapeHtml(value) {
@@ -119,3 +119,7 @@ function escapeHtml(value) {
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+
+
+
