@@ -562,6 +562,7 @@ function handleDocumentClick(event) {
   if (event.target.closest("[data-action='new-category']")) return openCategoryModal();
   if (event.target.closest("[data-action='new-lead']")) return openLeadModal();
   if (event.target.closest("[data-action='confirm-import']")) return confirmImport();
+  if (event.target.closest("[data-delete-lead]")) return removeLead(event.target.closest("[data-delete-lead]").dataset.deleteLead);
   if (event.target.closest("[data-save-category]")) {
     const form = document.getElementById("category-form");
     if (form) submitCategoryForm(new FormData(form));
@@ -1050,6 +1051,7 @@ function quickLeadActions(lead) {
     <button class="crm-pill text-sm font-semibold text-amber-600 dark:text-amber-300" data-quick-status="${lead.id}:Interesado">Marcar interesado</button>
     <button class="crm-pill text-sm font-semibold text-rose-600 dark:text-rose-300" data-quick-status="${lead.id}:Rechazado">Marcar rechazado</button>
     <button class="crm-pill text-sm font-semibold text-emerald-600 dark:text-emerald-300" data-quick-status="${lead.id}:Cliente">Convertir a cliente</button>
+    <button class="crm-pill text-sm font-semibold text-rose-600 dark:text-rose-300" data-delete-lead="${lead.id}">Eliminar lead</button>
   `;
 }
 
@@ -1064,6 +1066,18 @@ document.addEventListener("click", (event) => {
 
 
 
+
+function removeLead(leadId) {
+  const lead = findLead(leadId);
+  if (!lead) return;
+  if (!confirm(`Eliminar el lead "${lead.name}"?`)) return;
+  state.data.leads = state.data.leads.filter((item) => item.id !== leadId);
+  state.data.clients = state.data.clients.filter((client) => client.leadId !== leadId);
+  saveData();
+  closeModal();
+  renderApp();
+  toast("Lead eliminado.");
+}
 
 function closeModal() {
   modalRoot.innerHTML = "";
@@ -1148,6 +1162,8 @@ function escapeAttr(value) {
 }
 
 init();
+
+
 
 
 
